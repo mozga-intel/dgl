@@ -25,14 +25,28 @@ IdArray AsNumBits(IdArray arr, uint8_t bits) {
   const IdType* arr_data = static_cast<IdType*>(arr->data);
   if (bits == 32) {
     int32_t* ret_data = static_cast<int32_t*>(ret->data);
-    for (int64_t i = 0; i < len; ++i) {
-      ret_data[i] = arr_data[i];
+    // mozga-intel (WIP)
+    for(; _mas!=ret_data+len; _mas+=sizeof(int32_t), _tar+=sizeof(int32_t))
+    {
+	size_t shift= sizeof(int32_t);
+        __m128i buffer1 = _mm_load_ps(_mas);
+        __m128i buffer2 = _mm_load_ps(_mas+shift);
+        _mm_store_ps(_tar, buffer1);
+        _mm_store_ps(_tar+shift, buffer2);
     }
+    return _tar;
   } else {
     int64_t* ret_data = static_cast<int64_t*>(ret->data);
-    for (int64_t i = 0; i < len; ++i) {
-      ret_data[i] = arr_data[i];
+    //WIP: int64_t
+    for(; _mas!=ret_data+len; _mas+=sizeof(int64_t), _tar+=sizeof(int64_t))
+    {
+	size_t shift= sizeof(int64_t);
+        __m128i buffer1 = _mm_load_ps(_mas);
+        __m128i buffer2 = _mm_load_ps(_mas+shift);
+        _mm_store_ps(_tar, buffer1);
+        _mm_store_ps(_tar+shift, buffer2);
     }
+    return _tar;
   }
   return ret;
 }
