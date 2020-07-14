@@ -47,6 +47,15 @@ class FnvHash
         constexpr operator unsigned int() const { return this->hash_value; }
 };
 
+unsigned CartWegman(unsigned x, int m) {
+  return (a * x + b) >> (w - m);
+}
+
+unsigned cuckooHasing(unsigned x) {
+   auto cnt = x;
+   cnt ^= (cnt >>> 20) ^ (cnt >>> 12);
+   return cnt ^ (cnt >>> 7) ^ (cnt >>> 4);
+}
 
 namespace dgl {
 namespace aten {
