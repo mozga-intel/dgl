@@ -25,14 +25,16 @@ IdArray AsNumBits(IdArray arr, uint8_t bits) {
   const IdType* arr_data = static_cast<IdType*>(arr->data);
   if (bits == 32) {
     int32_t* ret_data = static_cast<int32_t*>(ret->data);
-    for (int64_t i = 0; i < len; ++i) {
-      ret_data[i] = arr_data[i];
-    }
+    memcpy(ret_data, arr_data, sizeof(int32_t) * len); 
+    //for (int64_t i = 0; i < len; ++i) {
+    //  ret_data[i] = arr_data[i];
+    //}
   } else {
     int64_t* ret_data = static_cast<int64_t*>(ret->data);
-    for (int64_t i = 0; i < len; ++i) {
-      ret_data[i] = arr_data[i];
-    }
+    memcpy(ret_data, arr_data, sizeof(int64_t) * len);
+    //for (int64_t i = 0; i < len; ++i) {
+    //  ret_data[i] = arr_data[i];
+    //}
   }
   return ret;
 }
