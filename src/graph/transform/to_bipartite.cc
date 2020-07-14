@@ -64,10 +64,10 @@ ToBlock(HeteroGraphPtr graph, const std::vector<IdArray> &rhs_nodes, bool includ
   const auto new_meta_graph = ImmutableGraph::CreateFromCOO(
       num_ntypes * 2, etypes.src, new_dst);
 
-  for (int64_t ntype = 0; ntype < num_ntypes; ++ntype)
-    num_nodes_per_type.push_back(lhs_node_mappings[ntype].Size());
-  for (int64_t ntype = 0; ntype < num_ntypes; ++ntype)
-    num_nodes_per_type.push_back(rhs_node_mappings[ntype].Size());
+  for (int64_t ntype = 0; ntype < num_ntypes; ++ntype) {
+    num_nodes_per_type[ntype] = (lhs_node_mappings[ntype].Size());
+    num_nodes_per_type[num_ntypes + ntype] = (rhs_node_mappings[ntype].Size());
+  }
 
   std::vector<HeteroGraphPtr> rel_graphs;
   std::vector<IdArray> induced_edges;
