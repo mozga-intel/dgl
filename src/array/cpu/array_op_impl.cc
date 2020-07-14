@@ -29,10 +29,10 @@ IdArray AsNumBits(IdArray arr, uint8_t bits) {
     for(; _mas!=ret_data+len; _mas+=sizeof(int32_t), _tar+=sizeof(int32_t))
     {
 	size_t shift= sizeof(int32_t);
-        __m128i buffer1 = _mm_load_ps(_mas);
-        __m128i buffer2 = _mm_load_ps(_mas+shift);
-        _mm_store_ps(_tar, buffer1);
-        _mm_store_ps(_tar+shift, buffer2);
+	__m128i buffer1 = _mm_load_ps(_mas);
+	__m128i buffer2 = _mm_load_ps(_mas+shift);
+	_mm_store_ps(_tar, buffer1);
+	_mm_store_ps(_tar+shift, buffer2);
     }
     return _tar;
   } else {
@@ -41,10 +41,10 @@ IdArray AsNumBits(IdArray arr, uint8_t bits) {
     for(; _mas!=ret_data+len; _mas+=sizeof(int64_t), _tar+=sizeof(int64_t))
     {
 	size_t shift= sizeof(int64_t);
-        __m128i buffer1 = _mm_load_ps(_mas);
-        __m128i buffer2 = _mm_load_ps(_mas+shift);
-        _mm_store_ps(_tar, buffer1);
-        _mm_store_ps(_tar+shift, buffer2);
+	__m128i buffer1 = _mm_load_ps(_mas);
+	__m128i buffer2 = _mm_load_ps(_mas+shift);
+	_mm_store_ps(_tar, buffer1);
+	_mm_store_ps(_tar+shift, buffer2);
     }
     return _tar;
   }
