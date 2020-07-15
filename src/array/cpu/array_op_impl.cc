@@ -14,6 +14,49 @@ namespace impl {
 
 ///////////////////////////// AsNumBits /////////////////////////////
 
+static inline void memcpy_16(void *dst, const void *src) {
+	__m128i m0 = _mm_loadu_si128(((const __m128i*)src) + 0);
+	_mm_storeu_si128(((__m128i*)dst) + 0, m0);
+}
+
+static inline void memcpy_32(void *dst, const void *src) {
+	__m128i m0 = _mm_loadu_si128(((const __m128i*)src) + 0);
+	__m128i m1 = _mm_loadu_si128(((const __m128i*)src) + 1);
+	_mm_storeu_si128(((__m128i*)dst) + 0, m0);
+	_mm_storeu_si128(((__m128i*)dst) + 1, m1);
+}
+
+static inline void memcpy_64(void *dst, const void *src) {
+	__m128i m0 = _mm_loadu_si128(((const __m128i*)src) + 0);
+	__m128i m1 = _mm_loadu_si128(((const __m128i*)src) + 1);
+	__m128i m2 = _mm_loadu_si128(((const __m128i*)src) + 2);
+	__m128i m3 = _mm_loadu_si128(((const __m128i*)src) + 3);
+	_mm_storeu_si128(((__m128i*)dst) + 0, m0);
+	_mm_storeu_si128(((__m128i*)dst) + 1, m1);
+	_mm_storeu_si128(((__m128i*)dst) + 2, m2);
+	_mm_storeu_si128(((__m128i*)dst) + 3, m3);
+}
+
+static inline void memcpy_128(void *dst, const void *src) {
+	__m128i m0 = _mm_loadu_si128(((const __m128i*)src) + 0);
+	__m128i m1 = _mm_loadu_si128(((const __m128i*)src) + 1);
+	__m128i m2 = _mm_loadu_si128(((const __m128i*)src) + 2);
+	__m128i m3 = _mm_loadu_si128(((const __m128i*)src) + 3);
+	__m128i m4 = _mm_loadu_si128(((const __m128i*)src) + 4);
+	__m128i m5 = _mm_loadu_si128(((const __m128i*)src) + 5);
+	__m128i m6 = _mm_loadu_si128(((const __m128i*)src) + 6);
+	__m128i m7 = _mm_loadu_si128(((const __m128i*)src) + 7);
+	_mm_storeu_si128(((__m128i*)dst) + 0, m0);
+	_mm_storeu_si128(((__m128i*)dst) + 1, m1);
+	_mm_storeu_si128(((__m128i*)dst) + 2, m2);
+	_mm_storeu_si128(((__m128i*)dst) + 3, m3);
+	_mm_storeu_si128(((__m128i*)dst) + 4, m4);
+	_mm_storeu_si128(((__m128i*)dst) + 5, m5);
+	_mm_storeu_si128(((__m128i*)dst) + 6, m6);
+	_mm_storeu_si128(((__m128i*)dst) + 7, m7);
+}
+
+
 template <DLDeviceType XPU, typename IdType>
 IdArray AsNumBits(IdArray arr, uint8_t bits) {
   CHECK(bits == 32 || bits == 64) << "invalid number of integer bits";
@@ -25,28 +68,16 @@ IdArray AsNumBits(IdArray arr, uint8_t bits) {
   const IdType* arr_data = static_cast<IdType*>(arr->data);
   if (bits == 32) {
     int32_t* ret_data = static_cast<int32_t*>(ret->data);
-    // mozga-intel (WIP)
-    for(; _mas!=ret_data+len; _mas+=sizeof(int32_t), _tar+=sizeof(int32_t))
-    {
-	size_t shift= sizeof(int32_t);
-	__m128i buffer1 = _mm_load_ps(_mas);
-	__m128i buffer2 = _mm_load_ps(_mas+shift);
-	_mm_store_ps(_tar, buffer1);
-	_mm_store_ps(_tar+shift, buffer2);
+    if(len < 128) { 
+
     }
-    return _tar;
+    // mozga-intel (WIP)
+    // TODO
   } else {
     int64_t* ret_data = static_cast<int64_t*>(ret->data);
+    if(len < 128) { }
     //WIP: int64_t
-    for(; _mas!=ret_data+len; _mas+=sizeof(int64_t), _tar+=sizeof(int64_t))
-    {
-	size_t shift= sizeof(int64_t);
-	__m128i buffer1 = _mm_load_ps(_mas);
-	__m128i buffer2 = _mm_load_ps(_mas+shift);
-	_mm_store_ps(_tar, buffer1);
-	_mm_store_ps(_tar+shift, buffer2);
-    }
-    return _tar;
+    // TODO
   }
   return ret;
 }
