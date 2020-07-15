@@ -14,19 +14,34 @@ namespace impl {
 
 ///////////////////////////// AsNumBits /////////////////////////////
 
-static inline void memcpy_16(void *dst, const void *src) {
+#ifdef __GNUC__
+#if (__GNUC__ > 3 || __GNUC__ == 3) 
+	#define ALWAYS_INLINE __inline__ __attribute__((always_inline))
+#else
+        #define ALWAYS_INLINE __inline__
+#endif
+#elif defined(_MSC_VER)
+	#define ALWAYS_INLINE __forceinline
+#elif (defined(__BORLANDC__) || defined(__WATCOMC__))
+    #define ALWAYS_INLINE __inline
+#else
+    #define ALWAYS_INLINE 
+#endif
+#endif
+
+static ALWAYS_INLINE void memcpy_16(void *dst, const void *src) {
 	__m128i m0 = _mm_loadu_si128(((const __m128i*)src) + 0);
 	_mm_storeu_si128(((__m128i*)dst) + 0, m0);
 }
 
-static inline void memcpy_32(void *dst, const void *src) {
+static ALWAYS_INLINE void memcpy_32(void *dst, const void *src) {
 	__m128i m0 = _mm_loadu_si128(((const __m128i*)src) + 0);
 	__m128i m1 = _mm_loadu_si128(((const __m128i*)src) + 1);
 	_mm_storeu_si128(((__m128i*)dst) + 0, m0);
 	_mm_storeu_si128(((__m128i*)dst) + 1, m1);
 }
 
-static inline void memcpy_64(void *dst, const void *src) {
+static ALWAYS_INLINE void memcpy_64(void *dst, const void *src) {
 	__m128i m0 = _mm_loadu_si128(((const __m128i*)src) + 0);
 	__m128i m1 = _mm_loadu_si128(((const __m128i*)src) + 1);
 	__m128i m2 = _mm_loadu_si128(((const __m128i*)src) + 2);
@@ -37,7 +52,7 @@ static inline void memcpy_64(void *dst, const void *src) {
 	_mm_storeu_si128(((__m128i*)dst) + 3, m3);
 }
 
-static inline void memcpy_128(void *dst, const void *src) {
+static ALWAYS_INLINE void memcpy_128(void *dst, const void *src) {
 	__m128i m0 = _mm_loadu_si128(((const __m128i*)src) + 0);
 	__m128i m1 = _mm_loadu_si128(((const __m128i*)src) + 1);
 	__m128i m2 = _mm_loadu_si128(((const __m128i*)src) + 2);
