@@ -162,6 +162,52 @@ namespace impl {
 
 ///////////////////////////// COOSort_ /////////////////////////////
 
+template<class T>
+void radix_sort(vector<T> &data) {
+  static_assert(numeric_limits<T>::is_integer &&
+                !numeric_limits<T>::is_signed,
+                "radix_sort only supports unsigned integer types");
+  constexpr int word_bits = numeric_limits<T>::digits;
+  int max_bits = 1;
+  while ((size_t(1) << (3 * (max_bits+1))) <= data.size()) {
+    ++max_bits;
+  }
+  const int num_groups = (word_bits + max_bits - 1) / max_bits;
+
+  // Temporary arrays.
+  vector<size_t> count;
+  vector<T> new_data(data.size());
+
+  // Iterate over bit groups, starting from the least significant.
+  for (int group = 0; group < num_groups; ++group) {
+    // The current bit range.
+    const int start = group * word_bits / num_groups;
+    const int end = (group+1) * word_bits / num_groups;
+    const T mask = (size_t(1) << (end - start)) - T(1);
+
+    // Count the values in the current bit range.
+    count.assign(size_t(1) << (end - start), 0);
+    for (const T &x : data) ++count[(x >> start) & mask];
+
+    // Compute prefix sums in count.
+    size_t sum = 0;
+    for (size_t &c : count) {
+      size_t new_sum = sum + c;
+      c = sum;
+      sum = new_sum;
+    }
+
+    // Shuffle data elements.
+    for (const T &x : data) {
+      size_t &pos = count[(x >> start) & mask];
+      new_data[pos++] = x;
+    }
+
+    // Move the data to the original array.
+    data.swap(new_data);
+  }
+}
+
 template <DLDeviceType XPU, typename IdType>
 void COOSort_(COOMatrix* coo, bool sort_column) {
   const int64_t nnz = coo->row->shape[0];
