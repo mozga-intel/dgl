@@ -14,18 +14,19 @@ namespace impl {
 
 ///////////////////////////// AsNumBits /////////////////////////////
 
+#ifndef ALWAYS_INLINE
 #ifdef __GNUC__
-#if (__GNUC__ > 3 || __GNUC__ == 3) 
-	#define ALWAYS_INLINE __inline__ __attribute__((always_inline))
+#if (__GNUC__ > 3) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 1))
+	#define ALWAYS_INLINE         __inline__ __attribute__((always_inline))
 #else
-        #define ALWAYS_INLINE __inline__
+	#define ALWAYS_INLINE         __inline__
 #endif
 #elif defined(_MSC_VER)
 	#define ALWAYS_INLINE __forceinline
 #elif (defined(__BORLANDC__) || defined(__WATCOMC__))
-    #define ALWAYS_INLINE __inline
+	#define ALWAYS_INLINE __inline
 #else
-    #define ALWAYS_INLINE 
+	#define ALWAYS_INLINE 
 #endif
 #endif
 
@@ -83,16 +84,24 @@ IdArray AsNumBits(IdArray arr, uint8_t bits) {
   const IdType* arr_data = static_cast<IdType*>(arr->data);
   if (bits == 32) {
     int32_t* ret_data = static_cast<int32_t*>(ret->data);
-    if(len < 128) { 
-
-    }
+    #pragma omp parallel for simd
+    for (int64_t i = 0; i < len; ++i) {
+	ret_data[i] = arr_data[i];
+    }    
+//if(len < 128) { 
+//	memcpy(ret_data, arr_data, sizeof(int32_t) * len);
+    //}
     // mozga-intel (WIP)
     // TODO
   } else {
     int64_t* ret_data = static_cast<int64_t*>(ret->data);
-    if(len < 128) { }
-    //WIP: int64_t
-    // TODO
+    #pragma omp parallel for simd
+    for (int64_t i = 0; i < len; ++i) {
+	ret_data[i] = arr_data[i];
+    }    
+  //if(len < 128) { 
+//       memcpy(ret_data, arr_data, sizeof(int32_t) * len);
+    //}
   }
   return ret;
 }
