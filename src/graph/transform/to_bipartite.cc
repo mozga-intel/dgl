@@ -44,8 +44,7 @@ ToBlock(HeteroGraphPtr graph, const std::vector<IdArray> &rhs_nodes, bool includ
   else
     lhs_node_mappings.resize(num_ntypes);
 
-  std::vector<int64_t> num_nodes_per_type;
-  num_nodes_per_type.reserve(2 * num_ntypes);
+  std::vector<int64_t> num_nodes_per_type(2 * num_ntypes);
 
   for (int64_t etype = 0; etype < num_etypes; ++etype) {
     const auto src_dst_types = graph->GetEndpointTypes(etype);
