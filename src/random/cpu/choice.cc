@@ -9,6 +9,12 @@
 #include <vector>
 #include <numeric>
 #include "sample_utils.h"
+#include "../third_party/phmap/parallel_hashmap/phmap.h"
+
+
+
+
+
 
 namespace dgl {
 
@@ -70,8 +76,9 @@ void RandomEngine::UniformChoice(IdxType num, IdxType population, IdxType* out, 
       // Let k be num / population, the expected number of extra sampling steps is roughly
       // k^2 / (1-k) * population, which means in the worst case scenario,
       // the time complexity is O(population^2). In practice, we use 1/10 since
-      // std::unordered_set is pretty slow.
-      std::unordered_set<IdxType> selected;
+      //std::unordered_set is pretty slow.
+      //std::unordered_set<IdxType> selected;
+      phmap::flat_hash_set<IdxType> selected;
       while (selected.size() < num) {
         selected.insert(RandInt(population));
       }
