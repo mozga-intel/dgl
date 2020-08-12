@@ -12,9 +12,13 @@
 #include "../third_party/phmap/parallel_hashmap/phmap.h"
 
 
-
-
-
+template<typename T>
+struct Value {
+phmap::flat_hash_set<T> selected;
+T *out;
+}; 
+template<typename T>
+static std::map<std::string, std::shared_ptr<Value<T>>> cache_;
 
 namespace dgl {
 
@@ -78,9 +82,22 @@ void RandomEngine::UniformChoice(IdxType num, IdxType population, IdxType* out, 
       // the time complexity is O(population^2). In practice, we use 1/10 since
       //std::unordered_set is pretty slow.
       //std::unordered_set<IdxType> selected;
+      std::string hash_key = "" + std::to_string(num);
+      hash_key += std::to_string(population);
+      hash_key += std::to_string(replace);
+      hash_key += std::to_string(*out);
+      auto hash_key1 = std::to_string(std::hash<std::string>()(hash_key)); 
       phmap::flat_hash_set<IdxType> selected;
-      while (selected.size() < num) {
-        selected.insert(RandInt(population));
+      if(cache_<IdxType>.find(hash_key1) == cache_<IdxType>.end()) {
+	while (selected.size() < num) {
+        	selected.insert(RandInt(population));
+      	}
+	std::shared_ptr<Value<IdxType>> shared = std::make_shared<Value<IdxType>>();
+	shared->selected = selected;
+	cache_<IdxType>[hash_key1] = shared;
+      } else {
+	std::shared_ptr<Value<IdxType>> cache_local = cache_<IdxType>[hash_key1];
+	selected = cache_local->selected;
       }
       std::copy(selected.begin(), selected.end(), out);
     } else {

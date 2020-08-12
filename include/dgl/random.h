@@ -41,8 +41,8 @@ class RandomEngine {
  public:
   /*! \brief Constructor with default seed */
   RandomEngine() {
-    std::random_device rd;
-    SetSeed(rd());
+    //std::random_device rd;
+    SetSeed(1729);
   }
 
   /*! \brief Constructor with given seed */
@@ -179,7 +179,7 @@ class RandomEngine {
   }
 
  private:
-  std::default_random_engine rng_;
+  std::mt19937 rng_;
 };
 
 };  // namespace dgl
