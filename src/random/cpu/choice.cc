@@ -18,7 +18,7 @@ phmap::flat_hash_set<T> selected;
 T *out;
 }; 
 template<typename T>
-static std::map<std::string, std::shared_ptr<Value<T>>> cache_;
+static phmap::flat_hash_map<std::string, std::shared_ptr<Value<T>>> cache_;
 
 namespace dgl {
 
@@ -86,17 +86,17 @@ void RandomEngine::UniformChoice(IdxType num, IdxType population, IdxType* out, 
       hash_key += std::to_string(population);
       hash_key += std::to_string(replace);
       hash_key += std::to_string(*out);
-      auto hash_key1 = std::to_string(std::hash<std::string>()(hash_key)); 
+      //auto hash_key1 = std::to_string(std::hash<std::string>()(hash_key)); 
       phmap::flat_hash_set<IdxType> selected;
-      if(cache_<IdxType>.find(hash_key1) == cache_<IdxType>.end()) {
+      if(cache_<IdxType>.find(hash_key) == cache_<IdxType>.end()) {
 	while (selected.size() < num) {
         	selected.insert(RandInt(population));
       	}
 	std::shared_ptr<Value<IdxType>> shared = std::make_shared<Value<IdxType>>();
 	shared->selected = selected;
-	cache_<IdxType>[hash_key1] = shared;
+	cache_<IdxType>[hash_key] = shared;
       } else {
-	std::shared_ptr<Value<IdxType>> cache_local = cache_<IdxType>[hash_key1];
+	std::shared_ptr<Value<IdxType>> cache_local = cache_<IdxType>[hash_key];
 	selected = cache_local->selected;
       }
       std::copy(selected.begin(), selected.end(), out);
