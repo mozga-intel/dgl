@@ -226,7 +226,7 @@ def run(proc_id, n_gpus, args, devices, dataset):
          for k in dataset.possible_rating_values},
         sampler,
         batch_size=args.minibatch_size,
-        shuffle=True,
+        shuffle=False,
         drop_last=False)
 
     if proc_id == 0:

@@ -230,11 +230,13 @@ Subgraph CSR::VertexSubgraph(IdArray vids) const {
 }
 
 CSRPtr CSR::Transpose() const {
+  std::cerr << "TRANSPOSE\n";
   const auto& trans = aten::CSRTranspose(adj_);
   return CSRPtr(new CSR(trans.indptr, trans.indices, trans.data));
 }
 
 COOPtr CSR::ToCOO() const {
+  std::cerr << "COO TO CSR\n";
   const auto& coo = aten::CSRToCOO(adj_, true);
   return COOPtr(new COO(NumVertices(), coo.row, coo.col));
 }

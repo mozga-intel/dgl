@@ -51,7 +51,8 @@ void CSRSort_(CSRMatrix* csr) {
 #pragma omp parallel
   {
     std::vector<ShufflePair> reorder_vec;
-#pragma omp for
+//#pragma omp for
+#pragma omp parallel for
     for (int64_t row = 0; row < num_rows; row++) {
       const int64_t num_cols = indptr_data[row + 1] - indptr_data[row];
       IdType *col = indices_data + indptr_data[row];

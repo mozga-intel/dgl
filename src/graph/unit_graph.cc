@@ -1294,13 +1294,15 @@ UnitGraph::CSRPtr UnitGraph::GetInCSR(bool inplace) const {
   CSRPtr ret = in_csr_;
   if (!in_csr_->defined()) {
     if (out_csr_->defined()) {
+      //std::cerr << "GET IN CSR _1\n";
+      //std::cerr << &out_csr_ << std::endl;
       const auto& newadj = aten::CSRSort(aten::CSRTranspose(out_csr_->adj()));
-
       if (inplace)
         *(const_cast<UnitGraph*>(this)->in_csr_) = CSR(meta_graph(), newadj);
       else
         ret = std::make_shared<CSR>(meta_graph(), newadj);
     } else {
+      //std::cerr << "GET IN CSR 2\n";
       CHECK(coo_->defined()) << "None of CSR, COO exist";
       const auto& newadj = aten::CSRSort(aten::COOToCSR(
             aten::COOTranspose(coo_->adj())));
@@ -1323,6 +1325,7 @@ UnitGraph::CSRPtr UnitGraph::GetOutCSR(bool inplace) const {
   CSRPtr ret = out_csr_;
   if (!out_csr_->defined()) {
     if (in_csr_->defined()) {
+      //std::cout << "GET OUT CSR 1\n";
       const auto& newadj = aten::CSRSort(aten::CSRTranspose(in_csr_->adj()));
 
       if (inplace)
@@ -1330,13 +1333,17 @@ UnitGraph::CSRPtr UnitGraph::GetOutCSR(bool inplace) const {
       else
         ret = std::make_shared<CSR>(meta_graph(), newadj);
     } else {
+      //std::cout << "GET OUT CSR 2\n";
       CHECK(coo_->defined()) << "None of CSR, COO exist";
-      const auto& newadj = aten::CSRSort(aten::COOToCSR(coo_->adj()));
-
-      if (inplace)
+      const auto& coo_s = aten::COOToCSR(coo_->adj());
+     const auto& newadj = aten::CSRSort(coo_s);
+      if (inplace) {
+    //    const auto& newadj2 = aten::CSRSort(aten::CSRTranspose(newadj));
         *(const_cast<UnitGraph*>(this)->out_csr_) = CSR(meta_graph(), newadj);
-      else
+   //     *(const_cast<UnitGraph*>(this)->in_csr_) = CSR(meta_graph(), newadj2);
+      } else {
         ret = std::make_shared<CSR>(meta_graph(), newadj);
+      }
     }
   }
   return ret;
@@ -1410,8 +1417,10 @@ dgl_format_code_t UnitGraph::GetAllowedFormats() const {
 HeteroGraphPtr UnitGraph::GetFormat(SparseFormat format) const {
   switch (format) {
   case SparseFormat::kCSR:
+    //std::cerr << "OUT\n";
     return GetOutCSR();
   case SparseFormat::kCSC:
+    //std::cerr << "IN\n";
     return GetInCSR();
   default:
     return GetCOO();

@@ -41,16 +41,13 @@ void SpMMSumCsr(
           lhs_dim = bcast.lhs_len,
           rhs_dim = bcast.rhs_len;
   DType* O = out.Ptr<DType>();
-
-IdType rid,j;
-int64_t k;
-#pragma omp parallel for private(k, j)
-  for (rid = 0; rid < csr.num_rows; ++rid) {
+#pragma omp parallel for
+  for (IdType rid = 0; rid < csr.num_rows; ++rid) {
     const IdType row_start = indptr[rid], row_end = indptr[rid + 1];
     DType* out_off = O + rid * dim;
-    for (k = 0; k < dim; ++k) {
+    for (int64_t k = 0; k < dim; ++k) {
       DType accum = 0;
-      for (j = row_start; j < row_end; ++j) {
+      for (IdType j = row_start; j < row_end; ++j) {
         const IdType cid = indices[j];
         const IdType eid = has_idx? edges[j] : j;
         const int64_t lhs_add = bcast.use_bcast ? bcast.lhs_offset[k] : k;
