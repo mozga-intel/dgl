@@ -1338,8 +1338,8 @@ UnitGraph::CSRPtr UnitGraph::GetOutCSR(bool inplace) const {
       //std::cerr << "OUT_2\n";
       CHECK(coo_->defined()) << "None of CSR, COO exist";
 
-      const auto& newadj = aten::COOToCSR(aten::COOSort(coo_->adj()));
-      //const auto& newadj = aten::CSRSort(aten::COOToCSR(coo_->adj()));
+      //const auto& newadj = aten::COOToCSR(aten::COOSort(coo_->adj()));
+      const auto& newadj = aten::CSRSort(aten::COOToCSR(coo_->adj()));
 
       if (inplace) {
         *(const_cast<UnitGraph*>(this)->out_csr_) = CSR(meta_graph(), newadj);
