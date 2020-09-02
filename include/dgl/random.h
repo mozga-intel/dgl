@@ -179,7 +179,7 @@ class RandomEngine {
   }
 
  private:
-  std::default_random_engine rng_;
+  std::mt19937 rng_;
 };
 
 };  // namespace dgl

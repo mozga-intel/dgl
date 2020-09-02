@@ -41,10 +41,30 @@ void SpMMSumCsr(
           lhs_dim = bcast.lhs_len,
           rhs_dim = bcast.rhs_len;
   DType* O = out.Ptr<DType>();
+const int r = (indptr[csr.num_rows] - indptr[0]) % 20;
+auto package_size = 20;
 #pragma omp parallel for
-  for (IdType rid = 0; rid < csr.num_rows; ++rid) {
-    const IdType row_start = indptr[rid], row_end = indptr[rid + 1];
-    DType* out_off = O + rid * dim;
+  for(IdType rid = indptr[0]; rid < indptr[csr.num_rows] - package_size - 1; rid = rid + package_size) {
+    const IdType row_start = rid, row_end = rid + package_size;
+    DType* out_off = O + dim;
+    for (int64_t k = 0; k < dim; ++k) {
+      DType accum = 0;
+      for (IdType j = row_start; j < row_end; ++j) {
+        const IdType cid = indices[j];
+        const IdType eid = has_idx? edges[j] : j;
+        const int64_t lhs_add = bcast.use_bcast ? bcast.lhs_offset[k] : k;
+        const int64_t rhs_add = bcast.use_bcast ? bcast.rhs_offset[k] : k;
+        const DType* lhs_off = Op::use_lhs? X + cid * lhs_dim + lhs_add : nullptr;
+        const DType* rhs_off = Op::use_rhs? W + eid * rhs_dim + rhs_add : nullptr;
+        accum += Op::Call(lhs_off, rhs_off);
+      }
+      out_off[k] = accum;
+    }
+  }
+#pragma omp parallel for
+  for(IdType rid = indptr[csr.num_rows] - package_size - 1 -  r; rid < indptr[csr.num_rows]; rid = rid + 1) {
+    const IdType row_start = rid, row_end = rid + 1;
+    DType* out_off = O + dim;
     for (int64_t k = 0; k < dim; ++k) {
       DType accum = 0;
       for (IdType j = row_start; j < row_end; ++j) {

@@ -9,6 +9,7 @@
 #include <vector>
 #include <numeric>
 #include "sample_utils.h"
+#include <parallel_hashmap/phmap.h>
 
 namespace dgl {
 
@@ -71,14 +72,13 @@ void RandomEngine::UniformChoice(IdxType num, IdxType population, IdxType* out, 
       // k^2 / (1-k) * population, which means in the worst case scenario,
       // the time complexity is O(population^2). In practice, we use 1/10 since
       // std::unordered_set is pretty slow.
-      std::unordered_set<IdxType> selected;
-      while (selected.size() < num) {
+      phmap::flat_hash_set<IdxType> selected;
+      while(selected.size() < num)
         selected.insert(RandInt(population));
-      }
       std::copy(selected.begin(), selected.end(), out);
     } else {
       // reservoir algorithm
-      // time: O(population), space: O(num)
+      // time: O(population), space: O(num)i
       for (IdxType i = 0; i < num; ++i)
         out[i] = i;
       for (IdxType i = num; i < population; ++i) {
